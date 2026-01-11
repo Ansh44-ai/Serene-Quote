@@ -14,7 +14,7 @@ export default async function Home() {
   return (
     <main className="flex flex-1 flex-col">
        <div className="container relative flex flex-1 flex-col items-center justify-center py-12 text-center md:py-24">
-        <div className="absolute inset-0 -z-10 size-full bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+        <div className="absolute inset-0 -z-10 size-full bg-background/50 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
         <QuoteOfTheDay quote={dailyQuote} />
       </div>
     </main>
