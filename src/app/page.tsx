@@ -1,17 +1,15 @@
-import { quotes } from '@/lib/quotes';
+import { quoteOfTheDay } from '@/ai/flows/quote-flow';
 import { QuoteOfTheDay } from '@/components/quote-of-the-day';
 
-export default function Home() {
-  const getDayOfYear = () => {
-    const now = new Date();
-    const start = new Date(now.getFullYear(), 0, 0);
-    const diff = now.getTime() - start.getTime();
-    const oneDay = 1000 * 60 * 60 * 24;
-    return Math.floor(diff / oneDay);
-  };
+export default async function Home() {
+  const generatedQuote = await quoteOfTheDay('inspiration');
 
-  const dayOfYear = getDayOfYear();
-  const dailyQuote = quotes[dayOfYear % quotes.length];
+  const dailyQuote = {
+    id: new Date().setHours(0, 0, 0, 0), // Unique ID for the day
+    text: generatedQuote.quote,
+    author: generatedQuote.author,
+    isGenerated: true,
+  };
 
   return (
     <main className="flex flex-1 flex-col">

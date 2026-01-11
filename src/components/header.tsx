@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Heart, Feather, Menu, Home } from 'lucide-react';
+import { BookOpen, Heart, Feather, Menu, Home, Sparkles } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/', label: 'Daily Quote', icon: Home },
+  { href: '/generate', label: 'Generate', icon: Sparkles },
   { href: '/library', label: 'Library', icon: BookOpen },
   { href: '/favorites', label: 'Favorites', icon: Heart },
 ];

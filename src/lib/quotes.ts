@@ -2,6 +2,7 @@ export type Quote = {
   id: number;
   text: string;
   author: string;
+  isGenerated?: boolean;
 };
 
 export const quotes: Quote[] = [

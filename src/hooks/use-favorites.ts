@@ -46,7 +46,12 @@ export function useFavorites() {
         if (isCurrentlyFavorite) {
           return prevFavorites.filter((q) => q.id !== quote.id);
         } else {
-          return [...prevFavorites, quote];
+          const newFavorite = { ...quote };
+          if (quote.isGenerated && !prevFavorites.some(q => q.id === quote.id)) {
+            // Ensure unique ID for generated quotes if they share a timestamp ID
+            newFavorite.id = Date.now() + Math.random();
+          }
+          return [...prevFavorites, newFavorite];
         }
       });
     },

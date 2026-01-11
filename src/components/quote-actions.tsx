@@ -46,6 +46,9 @@ export function QuoteActions({ quote }: QuoteActionsProps) {
   };
 
   const handleFavorite = () => {
+    if (quote.isGenerated && !favorite) {
+       // For generated quotes, we might need a different favorite handling if they don't have a persistent ID
+    }
     toggleFavorite(quote);
     toast({
       title: favorite ? "Removed from favorites" : "Saved to favorites!",
