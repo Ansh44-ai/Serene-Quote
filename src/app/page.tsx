@@ -1,5 +1,6 @@
 import { QuoteOfTheDay } from '@/components/quote-of-the-day';
 import { quotes } from '@/lib/quotes';
+import { AdPlaceholder } from '@/components/ad-placeholder';
 
 export default function Home() {
   // To prevent exceeding API rate limits, we'll use a static quote for the "Quote of the Day".
@@ -11,6 +12,9 @@ export default function Home() {
        <div className="container relative flex flex-1 flex-col items-center justify-center py-12 text-center md:py-24">
         <div className="absolute inset-0 -z-10 size-full bg-background/50 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
         <QuoteOfTheDay quote={dailyQuote} />
+        <div className="mt-16 w-full max-w-lg">
+          <AdPlaceholder />
+        </div>
       </div>
     </main>
   );

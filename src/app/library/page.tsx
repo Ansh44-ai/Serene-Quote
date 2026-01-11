@@ -1,6 +1,7 @@
 import { quotes } from '@/lib/quotes';
 import { QuoteCard } from '@/components/quote-card';
 import type { Metadata } from 'next';
+import { AdPlaceholder } from '@/components/ad-placeholder';
 
 export const metadata: Metadata = {
   title: 'Quote Library | SereneQuote',
@@ -20,8 +21,15 @@ export default function LibraryPage() {
           </p>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {quotes.map((quote) => (
-            <QuoteCard key={quote.id} quote={quote} />
+          {quotes.map((quote, index) => (
+            <>
+              <QuoteCard key={quote.id} quote={quote} />
+              {index === 5 && (
+                <div className="sm:col-span-2 lg:col-span-1">
+                  <AdPlaceholder />
+                </div>
+              )}
+            </>
           ))}
         </div>
       </section>
