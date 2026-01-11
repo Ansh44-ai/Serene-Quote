@@ -5,7 +5,7 @@ export default async function Home() {
   const generatedQuote = await quoteOfTheDay('inspiration');
 
   const dailyQuote = {
-    id: new Date().setHours(0, 0, 0, 0), // Unique ID for the day
+    id: new Date().getTime(), // Unique ID for each render
     text: generatedQuote.quote,
     author: generatedQuote.author,
     isGenerated: true,
@@ -13,7 +13,8 @@ export default async function Home() {
 
   return (
     <main className="flex flex-1 flex-col">
-      <div className="container flex flex-1 items-center justify-center py-12 md:py-24">
+       <div className="container relative flex flex-1 flex-col items-center justify-center py-12 text-center md:py-24">
+        <div className="absolute inset-0 -z-10 size-full bg-background [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
         <QuoteOfTheDay quote={dailyQuote} />
       </div>
     </main>

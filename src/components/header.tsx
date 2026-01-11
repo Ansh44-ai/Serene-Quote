@@ -19,22 +19,22 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
+      <div className="container flex h-16 max-w-screen-2xl items-center">
         <div className="mr-4 flex items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
             <Feather className="h-6 w-6 text-primary" />
-            <span className="font-bold font-headline sm:inline-block">
+            <span className="font-bold font-headline text-lg sm:inline-block">
               SereneQuote
             </span>
           </Link>
-          <nav className="hidden items-center gap-6 text-sm md:flex">
+          <nav className="hidden items-center gap-2 text-sm md:flex">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "transition-colors hover:text-primary font-medium",
-                  pathname === item.href ? "text-primary" : "text-muted-foreground"
+                  "transition-colors hover:text-primary px-4 py-2 rounded-md font-medium",
+                  pathname === item.href ? "bg-secondary text-primary" : "text-muted-foreground"
                 )}
               >
                 {item.label}
@@ -58,8 +58,8 @@ export function Header() {
                     <Link
                       href={item.href}
                       className={cn(
-                        "flex items-center gap-4 rounded-lg p-3 text-lg font-medium transition-colors hover:bg-accent/50",
-                        pathname === item.href ? "bg-accent/70 text-accent-foreground" : "text-muted-foreground"
+                        "flex items-center gap-4 rounded-lg p-3 text-lg font-medium transition-colors hover:bg-accent/80",
+                        pathname === item.href ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:text-foreground"
                       )}
                     >
                       {item.icon && <item.icon className="h-5 w-5" />}
