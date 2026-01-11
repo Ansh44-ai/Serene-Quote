@@ -25,9 +25,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/firebase";
+import { useAuth, useFirestore } from "@/firebase";
 import { FirebaseError } from "firebase/app";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInAnonymously } from "firebase/auth";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
 const GoogleIcon = () => (
     <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="size-4">
@@ -60,6 +61,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
+  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
 
@@ -68,10 +70,25 @@ export default function LoginPage() {
     defaultValues: { email: "", password: "" },
   });
 
+  // Function to create user profile if it doesn't exist
+  const ensureUserProfile = async (user: any) => {
+    if (!user || !firestore) return;
+    const userDocRef = doc(firestore, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
+    if (!userDoc.exists()) {
+      await setDoc(userDocRef, {
+        id: user.uid,
+        username: user.displayName || user.email?.split('@')[0] || 'Anonymous',
+        email: user.email,
+      });
+    }
+  };
+
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     try {
-      await auth.signInWithEmailAndPassword(data.email, data.password);
+      const userCredential = await signInWithEmailAndPassword(auth, data.email, data.password);
+      await ensureUserProfile(userCredential.user);
       toast({ title: "Login successful!" });
       router.push("/");
     } catch (error) {
@@ -104,7 +121,8 @@ export default function LoginPage() {
     setIsLoading(true);
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const userCredential = await signInWithPopup(auth, provider);
+      await ensureUserProfile(userCredential.user);
       toast({ title: "Signed in with Google!" });
       router.push("/");
     } catch (error) {
@@ -122,7 +140,7 @@ export default function LoginPage() {
   const handleAnonymousLogin = async () => {
     setIsLoading(true);
     try {
-      await auth.signInAnonymously();
+      await signInAnonymously(auth);
       toast({ title: "Signed in anonymously." });
       router.push("/");
     } catch (error) {
