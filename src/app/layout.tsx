@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster";
 import { Header } from '@/components/header';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
   title: 'SereneQuote - Your daily dose of inspiration',
@@ -23,12 +24,19 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Literata:ital,opsz,wght@0,7..72,400;700;1,7..72,400&display=swap" rel="stylesheet" />
       </head>
       <body className={cn("min-h-screen bg-background font-body antialiased flex flex-col")}>
-        <FirebaseClientProvider>
-          <div className="fixed inset-0 -z-20 w-full h-full bg-background animated-gradient"></div>
-          <Header />
-          {children}
-          <Toaster />
-        </FirebaseClientProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <FirebaseClientProvider>
+            <div className="fixed inset-0 -z-20 w-full h-full bg-background animated-gradient"></div>
+            <Header />
+            {children}
+            <Toaster />
+          </FirebaseClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

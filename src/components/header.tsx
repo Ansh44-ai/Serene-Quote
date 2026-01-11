@@ -8,6 +8,7 @@ import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { useUser, useAuth } from '@/firebase';
 import { getAuth } from 'firebase/auth';
+import { ThemeToggle } from './theme-toggle';
 
 const navItems = [
   { href: '/', label: 'Daily Quote', icon: Home, auth: false },
@@ -54,6 +55,7 @@ export function Header() {
 
   const authActions = (
     <div className="hidden items-center gap-2 md:flex">
+      <ThemeToggle />
       {isUserLoading ? (
         <div className="h-9 w-24 animate-pulse rounded-md bg-muted" />
       ) : user ? (
@@ -82,6 +84,15 @@ export function Header() {
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+        <div className="flex justify-between items-center pr-12 mt-4">
+            <Link href="/" className="flex items-center space-x-2">
+                <Feather className="h-6 w-6 text-primary" />
+                <span className="font-bold font-headline text-lg sm:inline-block">
+                SereneQuote
+                </span>
+            </Link>
+            <ThemeToggle />
+        </div>
         <nav className="mt-8 flex flex-col gap-2">
           {navItems.map((item) => {
              if (item.auth && !user) return null;
