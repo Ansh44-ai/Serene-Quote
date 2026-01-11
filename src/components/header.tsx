@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { useUser, useAuth } from '@/firebase';
 import { getAuth } from 'firebase/auth';
 import { ThemeToggle } from './theme-toggle';
+import { Skeleton } from './ui/skeleton';
 
 const navItems = [
   { href: '/', label: 'Daily Quote', icon: Home, auth: false },
@@ -57,7 +58,7 @@ export function Header() {
     <div className="hidden items-center gap-2 md:flex">
       <ThemeToggle />
       {isUserLoading ? (
-        <div className="h-9 w-24 animate-pulse rounded-md bg-muted" />
+        <Skeleton className="h-9 w-24 rounded-md" />
       ) : user ? (
         <Button variant="ghost" size="sm" onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
@@ -95,7 +96,10 @@ export function Header() {
         </div>
         <nav className="mt-8 flex flex-col gap-2">
           {navItems.map((item) => {
-             if (item.auth && !user) return null;
+             if (item.auth && !user && !isUserLoading) return null;
+             if (item.auth && isUserLoading) {
+                return <Skeleton key={item.href} className="h-12 w-full rounded-lg" />;
+             }
             return (
               <SheetClose asChild key={item.href}>
                 <Link
@@ -115,7 +119,7 @@ export function Header() {
           <div className="my-4 border-t border-border" />
 
           {isUserLoading ? (
-             <div className="h-12 w-full animate-pulse rounded-lg bg-muted" />
+             <Skeleton className="h-12 w-full rounded-lg" />
           ) : user ? (
             <SheetClose asChild>
               <Button variant="ghost" onClick={handleLogout} className="flex items-center gap-4 rounded-lg p-3 text-lg font-medium text-muted-foreground hover:text-foreground justify-start">
