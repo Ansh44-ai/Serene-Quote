@@ -1,56 +1,51 @@
 'use client';
 
 import {useState, useEffect} from 'react';
-import {generateQuote} from '@/ai/flows/quote-flow';
-import type { QuoteResponse } from '@/ai/schemas/quote-schema';
+import { quotes } from '@/lib/quotes';
+import type { Quote } from '@/lib/quotes';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {QuoteCard} from '@/components/quote-card';
 import {Sparkles} from 'lucide-react';
-import {Skeleton} from '@/components/ui/skeleton';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
 
-const COOLDOWN_SECONDS = 10;
-
 export default function GeneratePage() {
   const [topic, setTopic] = useState('inspiration');
-  const [generatedQuote, setGeneratedQuote] = useState<QuoteResponse & { id: string } | null>(null);
+  const [generatedQuote, setGeneratedQuote] = useState<Quote | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
   const { toast } = useToast();
-
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (cooldown > 0) {
-      timer = setInterval(() => {
-        setCooldown((prev) => prev - 1);
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [cooldown]);
-
 
   const handleGenerate = async () => {
     setIsLoading(true);
     setGeneratedQuote(null);
-    try {
-      const quote = await generateQuote(topic);
-      setGeneratedQuote({ ...quote, id: uuidv4() });
-      setCooldown(COOLDOWN_SECONDS); // Start cooldown
-    } catch (error: any) {
-      console.error('Failed to generate quote:', error);
-      toast({
-        variant: "destructive",
-        title: "Generation Failed",
-        description: error.message || "Could not generate a quote. Please try again later.",
-      })
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
-  const isButtonDisabled = isLoading || cooldown > 0;
+    // Simulate a short delay for a better user experience
+    setTimeout(() => {
+        try {
+            // Get a random quote from the local library
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            const randomQuote = quotes[randomIndex];
+
+            // Use the existing quote data
+            setGeneratedQuote({ 
+                ...randomQuote, 
+                id: uuidv4(), // Assign a new unique ID for React key prop
+                isGenerated: true 
+            });
+
+        } catch (error: any) {
+            console.error('Failed to generate quote:', error);
+            toast({
+                variant: "destructive",
+                title: "Generation Failed",
+                description: "Could not retrieve a quote. Please try again later.",
+            })
+        } finally {
+            setIsLoading(false);
+        }
+    }, 500); // 500ms delay
+  };
 
   return (
     <main className="flex-1">
@@ -71,30 +66,28 @@ export default function GeneratePage() {
               onChange={(e) => setTopic(e.target.value)}
               placeholder="e.g. success, happiness, etc."
               className="flex-1"
-              disabled={isButtonDisabled}
+              disabled={isLoading}
             />
-            <Button onClick={handleGenerate} disabled={isButtonDisabled} className="w-[140px]">
+            <Button onClick={handleGenerate} disabled={isLoading} className="w-[140px]">
               <Sparkles className="mr-2 h-4 w-4" />
-              {isLoading ? 'Generating...' : cooldown > 0 ? `Wait ${cooldown}s` : 'Generate'}
+              {isLoading ? 'Generating...' : 'Generate'}
             </Button>
           </div>
         </div>
 
         <div className="mt-12 flex justify-center">
-          {isLoading && (
+          {isLoading && !generatedQuote && (
             <div className="w-full max-w-md">
-              <Skeleton className="h-48 rounded-lg" />
+                 <div className="flex h-48 w-full items-center justify-center rounded-lg border-2 border-dashed">
+                    <p className="text-muted-foreground">Finding inspiration...</p>
+                 </div>
             </div>
           )}
           {generatedQuote && (
             <div className="w-full max-w-md">
               <QuoteCard
-                quote={{
-                  id: generatedQuote.id,
-                  text: generatedQuote.quote,
-                  author: generatedQuote.author,
-                  isGenerated: true,
-                }}
+                quote={generatedQuote}
+                quoteId={generatedQuote.id}
               />
             </div>
           )}
