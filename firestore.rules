@@ -1,0 +1,148 @@
+/**
+ * This ruleset enforces a security model with two distinct access patterns:
+ * 1. Strict User-Ownership: All user-specific data, such as profiles ('/users/{userId}') and
+ *    their favorited quotes ('/users/{userId}/favoriteQuotes'), is siloed. Access is
+ *    granted only to the authenticated user whose UID matches the document path. This prevents
+ *    users from accessing or modifying another user's private data.
+ * 2. Public Read-Only Content: The global '/quotes' collection contains curated content
+ *    that is publicly readable by anyone, including unauthenticated visitors. To maintain
+ *    data integrity, this collection is made read-only from the client-side, disallowing
+ *    all write operations.
+ *
+ * Core Security Decisions:
+ * - User data is segregated using a hierarchical structure ('/users/{userId}/...').
+ * - Listing all users is explicitly disallowed to protect user privacy.
+ * - Relational integrity is enforced by validating that internal ID fields (e.g., 'userId'
+ *   in a FavoriteQuote document) match the corresponding ID in the document path. These
+ *   linking fields are immutable after creation.
+ * - Writes to the global '/quotes' collection are blocked, assuming it's populated via a
+ *   trusted server-side process (Admin SDK).
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ----------------------------------------------------------------------
+    // Helper Functions
+    // ----------------------------------------------------------------------
+
+    /**
+     * Returns true if the user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Returns true if the authenticated user's UID matches the provided userId.
+     * This is the primary function for enforcing document ownership.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Returns true if the document being accessed already exists.
+     * CRITICAL: Must be used for all update and delete operations.
+     */
+    function isExistingDoc() {
+      return resource != null;
+    }
+
+    /**
+     * A convenience function that combines an ownership check with an
+     * existence check, standardizing security for state-changing operations.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && isExistingDoc();
+    }
+
+    /**
+     * Validates that the internal 'id' field of a user document matches the
+     * document's ID in the path upon creation.
+     */
+    function hasConsistentUserIdOnCreate(userId) {
+      return request.resource.data.id == userId;
+    }
+
+    /**
+     * Ensures the internal 'id' field of a user document cannot be changed
+     * after the document has been created.
+     */
+    function hasImmutableUserId() {
+      return request.resource.data.id == resource.data.id;
+    }
+    
+    /**
+     * Validates that the internal 'userId' field of a favorite quote document
+     * matches the parent user's ID upon creation.
+     */
+    function hasConsistentOwnerIdOnCreate(userId) {
+        return request.resource.data.userId == userId;
+    }
+
+    /**
+     * Ensures the internal 'userId' field of a favorite quote document cannot
+     * be changed after creation, preserving the ownership link.
+     */
+    function hasImmutableOwnerId() {
+        return request.resource.data.userId == resource.data.userId;
+    }
+
+
+    // ----------------------------------------------------------------------
+    // Collection Rules
+    // ----------------------------------------------------------------------
+
+    /**
+     * @description Manages user profile documents. Only the user themselves can
+     *              create, view, or modify their own profile. Listing users is disabled.
+     * @path        /users/{userId}
+     * @allow       (get) An authenticated user reads their own profile: `get /users/user_abc` (auth.uid: 'user_abc').
+     * @deny        (get) A user tries to read another user's profile: `get /users/user_xyz` (auth.uid: 'user_abc').
+     * @deny        (list) Anyone tries to list all users: `list /users`.
+     * @principle   Restricts access to a user's own data tree and enforces self-creation.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && hasConsistentUserIdOnCreate(userId);
+      allow update: if isExistingOwner(userId) && hasImmutableUserId();
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Stores a user's favorite quotes. All operations are restricted
+       *              to the owner of this subcollection.
+       * @path        /users/{userId}/favoriteQuotes/{favoriteQuoteId}
+       * @allow       (create) A user adds a new favorite quote: `create /users/user_abc/favoriteQuotes/fav_123` (auth.uid: 'user_abc').
+       * @allow       (list) A user lists their own favorite quotes: `list /users/user_abc/favoriteQuotes` (auth.uid: 'user_abc').
+       * @deny        (get) A user tries to view another user's favorite: `get /users/user_xyz/favoriteQuotes/fav_123` (auth.uid: 'user_abc').
+       * @principle   Enforces document ownership based on a hierarchical path structure.
+       */
+      match /favoriteQuotes/{favoriteQuoteId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && hasConsistentOwnerIdOnCreate(userId);
+        allow update: if isExistingOwner(userId) && hasImmutableOwnerId();
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+
+    /**
+     * @description Stores global, curated quotes. This collection is public for
+     *              reading but is read-only for all clients to prevent tampering.
+     * @path        /quotes/{quoteId}
+     * @allow       (get) Any user, authenticated or not, reads a quote: `get /quotes/quote_123`.
+     * @allow       (list) Any user lists all quotes: `list /quotes`.
+     * @deny        (create) Any user tries to add a new quote: `create /quotes/quote_456`.
+     * @principle   Allows public read access while preventing all client-side writes to ensure data integrity.
+     */
+    match /quotes/{quoteId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}
