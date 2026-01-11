@@ -10,10 +10,6 @@ const quoteOfTheDayFlow = ai.defineFlow(
     name: 'quoteOfTheDayFlow',
     inputSchema: z.string().describe('The theme of the quote'),
     outputSchema: QuoteSchema,
-    cache: {
-      ttl: 60 * 60 * 24, // 24 hours
-      key: (theme) => theme,
-    },
   },
   async (theme) => {
     const {output} = await ai.generate({
