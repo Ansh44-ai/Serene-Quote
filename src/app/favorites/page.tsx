@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@/firebase";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { AdPlaceholder } from "@/components/ad-placeholder";
 
 export default function FavoritesPage() {
   const { user, isUserLoading } = useUser();
@@ -60,7 +61,13 @@ export default function FavoritesPage() {
     // Display the list of favorite quotes.
     return (
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {favoriteQuotes.slice().reverse().map((fav, index) => (
+        {favoriteQuotes.slice(0, 5).reverse().map((fav) => (
+            <QuoteCard key={fav.id} quote={fav} quoteId={fav.quoteId} />
+        ))}
+         <div className="sm:col-span-2 lg:col-span-1">
+            <AdPlaceholder />
+        </div>
+        {favoriteQuotes.slice(5).reverse().map((fav) => (
             <QuoteCard key={fav.id} quote={fav} quoteId={fav.quoteId} />
         ))}
       </div>
