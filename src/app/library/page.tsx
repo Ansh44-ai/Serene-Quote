@@ -17,7 +17,7 @@ export default function LibraryPage() {
           </h1>
           <p className="mt-2 text-lg text-muted-foreground">
             Explore our collection of past quotes for a dose of inspiration.
-          p>
+          </p>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {quotes.map((quote) => (
