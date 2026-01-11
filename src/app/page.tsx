@@ -1,16 +1,10 @@
-import { quoteOfTheDay } from '@/ai/flows/quote-flow';
 import { QuoteOfTheDay } from '@/components/quote-of-the-day';
-import { v4 as uuidv4 } from 'uuid';
+import { quotes } from '@/lib/quotes';
 
-export default async function Home() {
-  const generatedQuote = await quoteOfTheDay('inspiration');
-
-  const dailyQuote = {
-    id: uuidv4(), // Unique ID for each render
-    text: generatedQuote.quote,
-    author: generatedQuote.author,
-    isGenerated: true,
-  };
+export default function Home() {
+  // To prevent exceeding API rate limits, we'll use a static quote for the "Quote of the Day".
+  // This quote is selected from the local library.
+  const dailyQuote = quotes[0];
 
   return (
     <main className="flex flex-1 flex-col">
