@@ -1,6 +1,6 @@
 'use client';
 
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {generateQuote} from '@/ai/flows/quote-flow';
 import type { QuoteResponse } from '@/ai/schemas/quote-schema';
 import {Button} from '@/components/ui/button';
@@ -9,11 +9,27 @@ import {QuoteCard} from '@/components/quote-card';
 import {Sparkles} from 'lucide-react';
 import {Skeleton} from '@/components/ui/skeleton';
 import { v4 as uuidv4 } from 'uuid';
+import { useToast } from '@/hooks/use-toast';
+
+const COOLDOWN_SECONDS = 10;
 
 export default function GeneratePage() {
   const [topic, setTopic] = useState('inspiration');
   const [generatedQuote, setGeneratedQuote] = useState<QuoteResponse & { id: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (cooldown > 0) {
+      timer = setInterval(() => {
+        setCooldown((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [cooldown]);
+
 
   const handleGenerate = async () => {
     setIsLoading(true);
@@ -21,12 +37,20 @@ export default function GeneratePage() {
     try {
       const quote = await generateQuote(topic);
       setGeneratedQuote({ ...quote, id: uuidv4() });
-    } catch (error) {
+      setCooldown(COOLDOWN_SECONDS); // Start cooldown
+    } catch (error: any) {
       console.error('Failed to generate quote:', error);
+      toast({
+        variant: "destructive",
+        title: "Generation Failed",
+        description: error.message || "Could not generate a quote. Please try again later.",
+      })
     } finally {
       setIsLoading(false);
     }
   };
+
+  const isButtonDisabled = isLoading || cooldown > 0;
 
   return (
     <main className="flex-1">
@@ -47,10 +71,11 @@ export default function GeneratePage() {
               onChange={(e) => setTopic(e.target.value)}
               placeholder="e.g. success, happiness, etc."
               className="flex-1"
+              disabled={isButtonDisabled}
             />
-            <Button onClick={handleGenerate} disabled={isLoading}>
+            <Button onClick={handleGenerate} disabled={isButtonDisabled} className="w-[140px]">
               <Sparkles className="mr-2 h-4 w-4" />
-              {isLoading ? 'Generating...' : 'Generate'}
+              {isLoading ? 'Generating...' : cooldown > 0 ? `Wait ${cooldown}s` : 'Generate'}
             </Button>
           </div>
         </div>
