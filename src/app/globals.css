@@ -4,48 +4,48 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
+    --background: 43 33% 96%; /* Warm Cream - #F5F5DC */
     --foreground: 215 28% 17%;
-    --card: 210 40% 100%;
+    --card: 43 33% 98%; /* Lighter cream for cards */
     --card-foreground: 215 28% 17%;
-    --popover: 210 40% 100%;
+    --popover: 43 33% 98%;
     --popover-foreground: 215 28% 17%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 215 28% 17%;
-    --muted: 210 40% 96.1%;
+    --primary: 180 100% 25%; /* Deep Teal - #008080 */
+    --primary-foreground: 43 33% 98%;
+    --secondary: 43 25% 90%;
+    --secondary-foreground: 180 100% 15%;
+    --muted: 43 25% 90%;
     --muted-foreground: 215 20% 45.1%;
-    --accent: 356 75% 59%;
+    --accent: 32 46% 64%; /* Soft Gold - #D4A373 */
     --accent-foreground: 210 40% 98%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 217 91% 60%;
+    --border: 43 25% 85%;
+    --input: 43 25% 85%;
+    --ring: 180 100% 25%;
     --radius: 0.75rem;
   }
 
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+    --card: 222.2 84% 6.9%;
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 180 80% 60%; /* Brighter Teal for dark mode */
     --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 356 75% 59%;
+    --accent: 32 56% 74%; /* Brighter Gold for dark mode */
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 217.2 91.2% 59.8%;
+    --ring: 180 80% 60%;
   }
 }
 
@@ -70,25 +70,25 @@
 @layer components {
   .animated-gradient {
     animation: gradient-animation 15s ease infinite;
-    background-image: radial-gradient(at 27% 37%, hsla(215, 98%, 61%, 1) 0px, transparent 50%),
-      radial-gradient(at 97% 21%, hsla(125, 98%, 72%, 1) 0px, transparent 50%),
-      radial-gradient(at 52% 99%, hsla(355, 98%, 76%, 1) 0px, transparent 50%),
-      radial-gradient(at 10% 29%, hsla(256, 96%, 68%, 1) 0px, transparent 50%),
-      radial-gradient(at 97% 96%, hsla(38, 60%, 74%, 1) 0px, transparent 50%),
-      radial-gradient(at 33% 50%, hsla(222, 67%, 73%, 1) 0px, transparent 50%),
-      radial-gradient(at 79% 53%, hsla(343, 68%, 79%, 1) 0px, transparent 50%);
+    background-image: radial-gradient(at 27% 37%, hsla(180, 100%, 25%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 97% 21%, hsla(32, 46%, 64%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 52% 99%, hsla(180, 100%, 25%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 10% 29%, hsla(32, 46%, 64%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 97% 96%, hsla(180, 100%, 25%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 33% 50%, hsla(32, 46%, 64%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 79% 53%, hsla(180, 100%, 25%, 0.1) 0px, transparent 50%);
     background-size: 400% 400%;
   }
 
   .dark .animated-gradient {
     animation: gradient-animation 15s ease infinite;
-    background-image: radial-gradient(at 27% 37%, hsla(215, 98%, 61%, 0.2) 0px, transparent 50%),
-      radial-gradient(at 97% 21%, hsla(125, 98%, 72%, 0.2) 0px, transparent 50%),
-      radial-gradient(at 52% 99%, hsla(355, 98%, 76%, 0.2) 0px, transparent 50%),
-      radial-gradient(at 10% 29%, hsla(256, 96%, 68%, 0.2) 0px, transparent 50%),
-      radial-gradient(at 97% 96%, hsla(38, 60%, 74%, 0.2) 0px, transparent 50%),
-      radial-gradient(at 33% 50%, hsla(222, 67%, 73%, 0.2) 0px, transparent 50%),
-      radial-gradient(at 79% 53%, hsla(343, 68%, 79%, 0.2) 0px, transparent 50%);
+    background-image: radial-gradient(at 27% 37%, hsla(180, 80%, 60%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 97% 21%, hsla(32, 56%, 74%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 52% 99%, hsla(180, 80%, 60%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 10% 29%, hsla(32, 56%, 74%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 97% 96%, hsla(180, 80%, 60%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 33% 50%, hsla(32, 56%, 74%, 0.1) 0px, transparent 50%),
+      radial-gradient(at 79% 53%, hsla(180, 80%, 60%, 0.1) 0px, transparent 50%);
     background-size: 200% 200%;
   }
 

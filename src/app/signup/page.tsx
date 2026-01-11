@@ -28,7 +28,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth, useFirestore } from "@/firebase";
 import { FirebaseError } from "firebase/app";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
 const signupSchema = z.object({
   username: z.string().min(3, { message: "Username must be at least 3 characters."}),
@@ -56,14 +56,17 @@ export default function SignupPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
       const user = userCredential.user;
 
-      // Create user document in Firestore
+      // Create user document in Firestore, but only if it doesn't already exist
       if (user && firestore) {
         const userDocRef = doc(firestore, "users", user.uid);
-        await setDoc(userDocRef, {
-          id: user.uid,
-          username: data.username,
-          email: user.email,
-        });
+        const userDoc = await getDoc(userDocRef);
+        if (!userDoc.exists()) {
+          await setDoc(userDocRef, {
+            id: user.uid,
+            username: data.username,
+            email: user.email,
+          });
+        }
       }
 
       toast({ title: "Account created successfully!" });

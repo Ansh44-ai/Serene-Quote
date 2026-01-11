@@ -17,6 +17,7 @@
  *   linking fields are immutable after creation.
  * - Writes to the global '/quotes' collection are blocked, assuming it's populated via a
  *   trusted server-side process (Admin SDK).
+ * - Schema validation is enforced for user profiles and favorite quotes to ensure data consistency.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -89,6 +90,26 @@ service cloud.firestore {
         return request.resource.data.userId == resource.data.userId;
     }
 
+    /**
+     * Validates the schema for a User document.
+     */
+    function isValidUserSchema(data) {
+      return data.keys().hasAll(['id', 'username', 'email'])
+          && data.id is string
+          && data.username is string
+          && data.email is string;
+    }
+
+    /**
+     * Validates the schema for a FavoriteQuote document.
+     */
+    function isValidFavoriteQuoteSchema(data) {
+      return data.keys().hasAll(['userId', 'quoteId', 'text', 'author', 'dateFavorited'])
+          && data.userId is string
+          && (data.quoteId is string || data.quoteId is number)
+          && data.text is string
+          && data.author is string;
+    }
 
     // ----------------------------------------------------------------------
     // Collection Rules
@@ -106,8 +127,12 @@ service cloud.firestore {
     match /users/{userId} {
       allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isOwner(userId) && hasConsistentUserIdOnCreate(userId);
-      allow update: if isExistingOwner(userId) && hasImmutableUserId();
+      allow create: if isOwner(userId) 
+                      && hasConsistentUserIdOnCreate(userId) 
+                      && isValidUserSchema(request.resource.data);
+      allow update: if isExistingOwner(userId) 
+                      && hasImmutableUserId() 
+                      && isValidUserSchema(request.resource.data);
       allow delete: if isExistingOwner(userId);
 
       /**
@@ -122,8 +147,12 @@ service cloud.firestore {
       match /favoriteQuotes/{favoriteQuoteId} {
         allow get: if isOwner(userId);
         allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && hasConsistentOwnerIdOnCreate(userId);
-        allow update: if isExistingOwner(userId) && hasImmutableOwnerId();
+        allow create: if isOwner(userId) 
+                        && hasConsistentOwnerIdOnCreate(userId)
+                        && isValidFavoriteQuoteSchema(request.resource.data);
+        allow update: if isExistingOwner(userId) 
+                        && hasImmutableOwnerId()
+                        && isValidFavoriteQuoteSchema(request.resource.data);
         allow delete: if isExistingOwner(userId);
       }
     }
