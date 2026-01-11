@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [],
   },
+  experimental: {
+    // This is needed to allow cross-origin requests from the preview environment.
+    allowedDevOrigins: ["https://6000-firebase-studio-*.cluster-*.cloudworkstations.dev"],
+  }
 };
 
 export default nextConfig;
