@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BookOpen, Heart, Feather, Menu, Home, Sparkles, LogIn, UserPlus, LogOut } from 'lucide-react';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger, SheetClose } from '@/components/ui/sheet';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { useUser, useAuth } from '@/firebase';
@@ -85,15 +85,19 @@ export function Header() {
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-        <div className="flex justify-between items-center pr-12 mt-4">
-            <Link href="/" className="flex items-center space-x-2">
-                <Feather className="h-6 w-6 text-primary" />
-                <span className="font-bold font-headline text-lg sm:inline-block">
-                SereneQuote
-                </span>
-            </Link>
-            <ThemeToggle />
-        </div>
+        <SheetHeader className='text-left'>
+            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+            <SheetDescription className="sr-only">Main menu for navigating the SereneQuote application.</SheetDescription>
+            <div className="flex justify-between items-center pr-12 mt-4">
+                <Link href="/" className="flex items-center space-x-2">
+                    <Feather className="h-6 w-6 text-primary" />
+                    <span className="font-bold font-headline text-lg sm:inline-block">
+                    SereneQuote
+                    </span>
+                </Link>
+                <ThemeToggle />
+            </div>
+        </SheetHeader>
         <nav className="mt-8 flex flex-col gap-2">
           {navItems.map((item) => {
              if (item.auth && !user && !isUserLoading) return null;
