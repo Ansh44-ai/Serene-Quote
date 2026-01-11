@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -95,6 +96,7 @@ export function useFavorites() {
           // If it doesn't exist, add it to Firestore.
           const favoritesCol = collection(firestore, `users/${user.uid}/favoriteQuotes`);
           const favoriteQuoteData = {
+              userId: user.uid, // Add this line
               quoteId: quote.id,
               text: quote.text,
               author: quote.author,
