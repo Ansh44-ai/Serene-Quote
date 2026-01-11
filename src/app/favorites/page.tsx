@@ -4,12 +4,17 @@ import { useFavorites } from "@/hooks/use-favorites";
 import { QuoteCard } from "@/components/quote-card";
 import { Heart } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useUser } from "@/firebase";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function FavoritesPage() {
+  const { user, isUserLoading } = useUser();
   const { favoriteQuotes, isLoaded } = useFavorites();
 
   const renderContent = () => {
-    if (!isLoaded) {
+    // Show loading skeleton while user or favorites data is loading.
+    if (isUserLoading || !isLoaded) {
       return (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 3 }).map((_, i) => (
@@ -18,8 +23,27 @@ export default function FavoritesPage() {
         </div>
       );
     }
+    
+    // If user is not logged in and has no local favorites.
+    if (!user) {
+        return (
+            <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-card/50 p-12 text-center h-[400px]">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-background">
+                    <Heart className="h-10 w-10 text-muted-foreground" />
+                </div>
+                <h2 className="mt-6 font-headline text-2xl font-semibold">Log in to see your favorites</h2>
+                <p className="mt-2 text-center text-muted-foreground">
+                    Create an account to save quotes and access them from anywhere.
+                </p>
+                <Button asChild className="mt-6">
+                    <Link href="/login">Log In</Link>
+                </Button>
+            </div>
+        );
+    }
 
-    if (favoriteQuotes.length === 0) {
+    // If user is logged in but has no favorites.
+    if (user && favoriteQuotes.length === 0) {
       return (
         <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border bg-card/50 p-12 text-center h-[400px]">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-background">
@@ -33,10 +57,13 @@ export default function FavoritesPage() {
       );
     }
 
+    // Display the list of favorite quotes.
     return (
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {favoriteQuotes.slice().reverse().map((quote) => (
-          <QuoteCard key={quote.id} quote={quote} />
+        {favoriteQuotes.slice().reverse().map((fav) => (
+          // The document ID from Firestore is on `fav.id`, 
+          // the original quote ID is on `fav.quoteId`.
+          <QuoteCard key={fav.id} quote={fav} quoteId={fav.quoteId} />
         ))}
       </div>
     );
@@ -50,7 +77,7 @@ export default function FavoritesPage() {
             Favorite Quotes
           </h1>
           <p className="mt-2 text-lg text-muted-foreground">
-            Your personal collection of inspiring words.
+            {user ? "Your personal collection of inspiring words." : "Log in to build your collection."}
           </p>
         </div>
         {renderContent()}

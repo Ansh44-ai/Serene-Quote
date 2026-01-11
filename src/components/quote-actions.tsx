@@ -1,11 +1,13 @@
 "use client";
 
-import { Heart, Share2 } from "lucide-react";
+import { Heart, Share2, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFavorites } from "@/hooks/use-favorites";
 import { useToast } from "@/hooks/use-toast";
 import type { Quote } from "@/lib/quotes";
 import { cn } from "@/lib/utils";
+import { useUser } from "@/firebase";
+import { useRouter } from "next/navigation";
 
 type QuoteActionsProps = {
   quote: Quote;
@@ -14,6 +16,10 @@ type QuoteActionsProps = {
 export function QuoteActions({ quote }: QuoteActionsProps) {
   const { isFavorite, toggleFavorite } = useFavorites();
   const { toast } = useToast();
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+  
+  // Use the quote's original ID for checking favorite status.
   const favorite = isFavorite(quote.id);
 
   const handleShare = async () => {
@@ -46,27 +52,51 @@ export function QuoteActions({ quote }: QuoteActionsProps) {
   };
 
   const handleFavorite = () => {
-    if (quote.isGenerated && !favorite) {
-       // For generated quotes, we might need a different favorite handling if they don't have a persistent ID
+    if (isUserLoading) return; // Prevent action while auth state is loading
+
+    if (!user) {
+      // Guest user, use local storage.
+      toggleFavorite(quote);
+      toast({
+        title: favorite ? "Removed from favorites" : "Saved to favorites!",
+        description: "Your favorites are saved on this device.",
+      });
+    } else {
+      // Logged-in user, use Firestore.
+      toggleFavorite(quote);
+      toast({
+        title: favorite ? "Removed from favorites" : "Saved to your account!",
+      });
     }
-    toggleFavorite(quote);
-    toast({
-      title: favorite ? "Removed from favorites" : "Saved to favorites!",
-    });
   };
+
+  if (isUserLoading) {
+    return <div className="h-10 w-24 animate-pulse rounded-md bg-muted" />;
+  }
+
+  // If user is not logged in, show a prompt to log in for certain actions
+  const LoginPrompt = () => (
+    <div className="flex items-center gap-2">
+      <Button variant="ghost" size="sm" onClick={() => router.push('/login')}>
+        <LogIn className="mr-2 h-4 w-4" />
+        Log in to save
+      </Button>
+    </div>
+  );
 
   return (
     <div className="flex items-center gap-2">
-      <Button
+       <Button
         variant="ghost"
         size="icon"
         aria-label="Save to favorites"
         onClick={handleFavorite}
+        disabled={isUserLoading}
       >
         <Heart
           className={cn(
             "transition-all",
-            favorite ? "fill-primary text-primary" : "text-muted-foreground"
+            favorite ? "fill-accent text-accent" : "text-muted-foreground"
           )}
         />
       </Button>

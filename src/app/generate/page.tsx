@@ -8,10 +8,11 @@ import {Input} from '@/components/ui/input';
 import {QuoteCard} from '@/components/quote-card';
 import {Sparkles} from 'lucide-react';
 import {Skeleton} from '@/components/ui/skeleton';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function GeneratePage() {
   const [topic, setTopic] = useState('inspiration');
-  const [generatedQuote, setGeneratedQuote] = useState<QuoteResponse | null>(null);
+  const [generatedQuote, setGeneratedQuote] = useState<QuoteResponse & { id: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleGenerate = async () => {
@@ -19,7 +20,7 @@ export default function GeneratePage() {
     setGeneratedQuote(null);
     try {
       const quote = await generateQuote(topic);
-      setGeneratedQuote(quote);
+      setGeneratedQuote({ ...quote, id: uuidv4() });
     } catch (error) {
       console.error('Failed to generate quote:', error);
     } finally {
@@ -64,7 +65,7 @@ export default function GeneratePage() {
             <div className="w-full max-w-md">
               <QuoteCard
                 quote={{
-                  id: Date.now(),
+                  id: generatedQuote.id,
                   text: generatedQuote.quote,
                   author: generatedQuote.author,
                   isGenerated: true,

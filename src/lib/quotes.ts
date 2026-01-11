@@ -1,5 +1,5 @@
 export type Quote = {
-  id: number;
+  id: string | number;
   text: string;
   author: string;
   isGenerated?: boolean;
