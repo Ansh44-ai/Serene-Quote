@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useEffect} from 'react';
+import {useState} from 'react';
 import { quotes } from '@/lib/quotes';
 import type { Quote } from '@/lib/quotes';
 import {Button} from '@/components/ui/button';
